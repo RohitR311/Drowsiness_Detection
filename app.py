@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, Response, url_for, redirect
+from flask import Flask, render_template, request, Response
+from flask_cors import CORS
 from drowsy_detection import VideoFrameHandler
 
 from pygame import mixer
@@ -9,6 +10,7 @@ ear_thresh = None
 wait_time = None
 
 app = Flask(__name__, template_folder='templates')
+CORS(app)
 
 alarm_file_path = os.path.join("audio", "wake_up.wav")
 
