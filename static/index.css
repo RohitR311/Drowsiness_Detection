@@ -1,0 +1,20 @@
+.slider-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+/* #video-container { */
+	/* margin: 0px auto; */
+    /* display: flex;
+    flex-direction: column;
+	width: 500px;
+	height: 375px; */
+	/* border: 10px #333 solid; */
+/* } */
+
+#videoElement {
+	width: 500px;
+	height: 375px;
+	/* background-color: #666; */
+}
