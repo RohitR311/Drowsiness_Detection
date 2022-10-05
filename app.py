@@ -71,7 +71,7 @@ def video_feed():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 33507))
-    app.run(debug=True, post=port, host='0.0.0.0')
+    app.run(debug=True, port=port, host='0.0.0.0')
 
 camera.release()
 cv2.destroyAllWindows()
