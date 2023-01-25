@@ -28,7 +28,7 @@ run = st.checkbox('Run')
 uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
 
 FRAME_WINDOW = st.image([], width=400)
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(-1)
 # mixer.init()
 
 if uploaded_file is not None:
