@@ -2,12 +2,11 @@ import os
 import cv2
 import time
 import streamlit as st
-from pygame import mixer
+# from pygame import mixer
 
 from drowsy_detection import VideoFrameHandler
 
 def save_file(sound_file):
-    # save your sound file in the right folder by following the path
     with open(os.path.join('audio/', sound_file.name),'wb') as f:
          f.write(sound_file.getbuffer())
     return sound_file.name
@@ -26,14 +25,15 @@ st.set_page_config(
 
 st.title("Drowsiness Detection!")
 run = st.checkbox('Run')
-uploaded_file = st.file_uploader(' ', type='wav')
+uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
 
 FRAME_WINDOW = st.image([], width=400)
 camera = cv2.VideoCapture(0)
-mixer.init()
+# mixer.init()
 
 if uploaded_file is not None:
-    mixer.music.load(uploaded_file)
+    # mixer.music.load(uploaded_file)
+    save_file(uploaded_file)
 
 col1, col2 = st.columns(spec=[1, 1])
 
@@ -50,16 +50,17 @@ thresholds = {
 }
 
 while run:
-    _, frame = camera.read()
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    ret, frame = camera.read()
+    if ret:
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    frame, play_alarm = video_handler.process(frame, thresholds)
+        frame, play_alarm = video_handler.process(frame, thresholds)
 
-    if play_alarm and not mixer.music.get_busy() and uploaded_file is not None:
-        time.sleep(0.5)
-        mixer.music.play()
+        # if play_alarm and uploaded_file is not None and not mixer.music.get_busy():
+        #     time.sleep(0.5)
+        #     mixer.music.play()
 
-    FRAME_WINDOW.image(frame)
+        FRAME_WINDOW.image(frame)
 else:
     st.write('Stopped')
 
