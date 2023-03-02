@@ -28,7 +28,7 @@ run = st.checkbox('Run')
 uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
 
 FRAME_WINDOW = st.image([])
-camera = cv2.VideoCapture(-1)
+camera = cv2.VideoCapture("https://rohitr311-drowsiness-detection-streamlit-app-v7fhtv.streamlit.app/")
 # pygame.mixer.init()
 
 if uploaded_file is not None:
@@ -59,10 +59,16 @@ while run:
     # if play_alarm and uploaded_file is not None and not pygame.mixer.music.get_busy():
     #     time.sleep(0.5)
     #     pygame.mixer.music.play()
-
-    FRAME_WINDOW.image(frame)
+    
+    cv2.imshow('frame',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+    # FRAME_WINDOW.image(frame)
 else:
     st.write('Stopped')
+
+camera.release()
+cv2.destroyAllWindows()
 
 # video_handler = VideoFrameHandler()
 # audio_handler = AudioFrameHandler(sound_file_path=alarm_file_path)
