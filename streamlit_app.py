@@ -2,8 +2,8 @@ import os
 import cv2
 import time
 import streamlit as st
-import pygame
-pygame.init()
+# import pygame
+# pygame.init()
 from drowsy_detection import VideoFrameHandler
 
 def save_file(sound_file):
@@ -29,10 +29,10 @@ uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
 
 FRAME_WINDOW = st.image([])
 camera = cv2.VideoCapture(0)
-pygame.mixer.init()
+# pygame.mixer.init()
 
 if uploaded_file is not None:
-    pygame.mixer.music.load(uploaded_file)
+    # pygame.mixer.music.load(uploaded_file)
     save_file(uploaded_file)
 
 col1, col2 = st.columns(spec=[1, 1])
@@ -56,9 +56,9 @@ while run:
 
     frame, play_alarm = video_handler.process(frame, thresholds)
 
-    if play_alarm and uploaded_file is not None and not pygame.mixer.music.get_busy():
-        time.sleep(0.5)
-        pygame.mixer.music.play()
+    # if play_alarm and uploaded_file is not None and not pygame.mixer.music.get_busy():
+    #     time.sleep(0.5)
+    #     pygame.mixer.music.play()
 
     FRAME_WINDOW.image(frame)
 else:
