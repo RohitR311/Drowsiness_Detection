@@ -55,7 +55,6 @@ lock = threading.Lock()
 
 shared_state = {"play_alarm": False}
 
-
 def video_frame_callback(frame: av.VideoFrame):
     frame = frame.to_ndarray(format="bgr24")
     frame, play_alarm = video_handler.process(frame, thresholds)
@@ -78,7 +77,7 @@ ctx = webrtc_streamer(
     key="driver-drowsiness-detection",
     video_frame_callback=video_frame_callback,
     audio_frame_callback=audio_frame_callback,
-    rtc_configuration=RTC_CONFIG,
+    # rtc_configuration=RTC_CONFIG,
     video_html_attrs=VideoHTMLAttributes(
         autoPlay=True, controls=False, muted=False),
 )
