@@ -10,7 +10,7 @@ from audio_handling import AudioFrameHandler
 default_alarm = os.path.join("audio", "wake_up.wav")
 
 RTC_CONFIG = RTCConfiguration(
-    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+    {"iceServers": [{"urls": ["stun:stun.acrobits.cz:3478"]}]}
 ),
 
 # def save_file(sound_file):
