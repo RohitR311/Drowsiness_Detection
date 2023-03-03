@@ -1,7 +1,6 @@
 ENV
 __pycache__
 DrowsinessDetection.ipynb
-audio_handling.py
 images
 main.py
 Aptfile

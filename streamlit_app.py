@@ -1,17 +1,22 @@
 import os
-import cv2
-import time
+import av
+import threading
 import streamlit as st
-# import pygame
-# pygame.init()
+from streamlit_webrtc import VideoHTMLAttributes, webrtc_streamer, RTCConfiguration, WebRtcMode
+
 from drowsy_detection import VideoFrameHandler
+from audio_handling import AudioFrameHandler
 
-def save_file(sound_file):
-    with open(os.path.join('audio/', sound_file.name),'wb') as f:
-         f.write(sound_file.getbuffer())
-    return sound_file.name
+default_alarm = os.path.join("audio", "wake_up.wav")
 
-video_handler = VideoFrameHandler()
+RTC_CONFIG = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+),
+
+# def save_file(sound_file):
+#     with open(os.path.join('audio/', sound_file.name),'wb') as f:
+#          f.write(sound_file.getbuffer())
+#     return sound_file.name
 
 st.set_page_config(
     page_title="Drowsiness Detection",
@@ -24,16 +29,10 @@ st.set_page_config(
 )
 
 st.title("Drowsiness Detection!")
-run = st.checkbox('Run')
-uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
+# uploaded_file = st.file_uploader(' ', type=['wav','mp3'])
 
-FRAME_WINDOW = st.image([])
-camera = cv2.VideoCapture("https://rohitr311-drowsiness-detection-streamlit-app-v7fhtv.streamlit.app/")
-# pygame.mixer.init()
-
-if uploaded_file is not None:
-    # pygame.mixer.music.load(uploaded_file)
-    save_file(uploaded_file)
+# if uploaded_file is not None:
+#     save_file(uploaded_file)
 
 col1, col2 = st.columns(spec=[1, 1])
 
@@ -49,60 +48,37 @@ thresholds = {
     "WAIT_TIME": WAIT_TIME,
 }
 
-while run:
-    ret, frame = camera.read()
-    # if ret:
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+video_handler = VideoFrameHandler()
+audio_handler = AudioFrameHandler(sound_file_path=default_alarm)
 
+lock = threading.Lock()
+
+shared_state = {"play_alarm": False}
+
+
+def video_frame_callback(frame: av.VideoFrame):
+    frame = frame.to_ndarray(format="bgr24")
     frame, play_alarm = video_handler.process(frame, thresholds)
 
-    # if play_alarm and uploaded_file is not None and not pygame.mixer.music.get_busy():
-    #     time.sleep(0.5)
-    #     pygame.mixer.music.play()
-    
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-    # FRAME_WINDOW.image(frame)
-else:
-    st.write('Stopped')
+    with lock:
+        shared_state["play_alarm"] = play_alarm
 
-camera.release()
-cv2.destroyAllWindows()
-
-# video_handler = VideoFrameHandler()
-# audio_handler = AudioFrameHandler(sound_file_path=alarm_file_path)
-
-# lock = threading.Lock()
-
-# shared_state = {"play_alarm": False}
+    return av.VideoFrame.from_ndarray(frame, format="bgr24")
 
 
-# def video_frame_callback(frame: av.VideoFrame):
-#     frame = frame.to_ndarray(format="bgr24")
-#     frame, play_alarm = video_handler.process(frame, thresholds)
-
-#     with lock:
-#         shared_state["play_alarm"] = play_alarm
-
-#     return av.VideoFrame.from_ndarray(frame, format="bgr24")
+def audio_frame_callback(frame: av.AudioFrame):
+    with lock:
+        play_alarm = shared_state["play_alarm"]
+    new_frame: av.AudioFrame = audio_handler.process(frame,
+                                                     play_sound=play_alarm)
+    return new_frame
 
 
-# def audio_frame_callback(frame: av.AudioFrame):
-#     with lock:
-#         play_alarm = shared_state["play_alarm"]
-#     new_frame: av.AudioFrame = audio_handler.process(frame,
-#                                                      play_sound=play_alarm)
-#     return new_frame
-
-
-# ctx = webrtc_streamer(
-#     key="driver-drowsiness-detection",
-#     video_frame_callback=video_frame_callback,
-#     audio_frame_callback=audio_frame_callback,
-#     rtc_configuration={"iceServers": [
-#         {"urls": ["stun:stun.l.google.com:19302"]}]},
-#     media_stream_constraints={"video": {"width": True, "audio": True}},
-#     video_html_attrs=VideoHTMLAttributes(
-#         autoPlay=True, controls=False, muted=False),
-# )
+ctx = webrtc_streamer(
+    key="driver-drowsiness-detection",
+    video_frame_callback=video_frame_callback,
+    audio_frame_callback=audio_frame_callback,
+    rtc_configuration=RTC_CONFIG,
+    video_html_attrs=VideoHTMLAttributes(
+        autoPlay=True, controls=False, muted=False),
+)
