@@ -77,7 +77,7 @@ ctx = webrtc_streamer(
     key="driver-drowsiness-detection",
     video_frame_callback=video_frame_callback,
     audio_frame_callback=audio_frame_callback,
-    # rtc_configuration=RTC_CONFIG,
+    rtc_configuration=RTC_CONFIG,
     video_html_attrs=VideoHTMLAttributes(
         autoPlay=True, controls=False, muted=False),
 )
